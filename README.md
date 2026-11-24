@@ -1,4 +1,4 @@
-# EmoteWheel (Paper 1.21.4, ViaVersion uyumlu)
+# S-Emotes (Paper 1.21.4, ViaVersion uyumlu)
 
 Çark + emote envanteri + klasörden otomatik emote yükleme + kasa (crate) entegrasyonu.
 
