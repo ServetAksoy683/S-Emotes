@@ -26,11 +26,10 @@ public final class EmoteRegistry {
     private record Res(String path, byte[] data) {}
 
     private final EmoteWheelPlugin pl;
-    private final MapService maps;
     private final Map<String, Emote> emotes = new LinkedHashMap<>();
     private volatile long signature;
 
-    public EmoteRegistry(EmoteWheelPlugin pl, MapService maps) { this.pl = pl; this.maps = maps; }
+    public EmoteRegistry(EmoteWheelPlugin pl) { this.pl = pl; }
 
     private File dir() { return new File(pl.getDataFolder(), pl.getConfig().getString("emotes.folder", "emotes")); }
 
@@ -57,7 +56,6 @@ public final class EmoteRegistry {
             if (e.hasImage()) emotes.put(id, e);
         }
         signature = sig(dir);
-        maps.save();
         pl.getLogger().info(emotes.size() + " emote yüklendi.");
     }
 
@@ -131,7 +129,8 @@ public final class EmoteRegistry {
                 if (bi == null) throw new IOException("desteklenmeyen/bozuk resim");
                 frames = List.of(bi);
             }
-            for (BufferedImage f : frames) e.mapIds.add(maps.mapFor(ImageUtil.fit(f)));
+            e.frameTime = frames.size() > 1 ? Math.max(1, e.frameDelay) : 0;
+            e.texture = ImageUtil.strip(frames);
         } catch (Exception ex) {
             pl.getLogger().warning(r.path() + " yüklenemedi: " + ex.getMessage());
         }

@@ -14,7 +14,6 @@ wheel:
   hover-scale: 0.85
   deadzone: 0.3         # ortadaki "seçim yok" bölgesi
   timeout-seconds: 20
-  empty-material: LIGHT_GRAY_STAINED_GLASS_PANE
   sounds:
     open: ui.button.click
     hover: block.note_block.hat
@@ -34,6 +33,17 @@ playback:
   display-transform: GUI   # balon görünmezse FIXED dene
 unlock:
   auto-equip: true         # yeni emote boş çark slotuna otomatik takılır
+pack:
+  # Emote resimleri resource pack ile gosterilir. Paket otomatik uretilir:
+  # plugins/S-Emotes/pack/S-Emotes-pack.zip  (emote degisince guncellenir)
+  enabled: true
+  url: ""              # zip'i yukledigin dogrudan indirme linki (https://...)
+  force: false
+  prompt: "S-Emotes gorselleri"
+  self-host:           # linkin yoksa: plugin zip'i kendisi sunar (ekstra acik port gerekir)
+    enabled: false
+    port: 8123
+    public-host: ""    # sunucu IP'si veya alan adi
 messages:
   prefix: "<dark_gray>[<gradient:#ff9a9e:#fad0c4>Emote</gradient>]</dark_gray> "
   no-permission: "<red>Bunu yapmaya iznin yok."

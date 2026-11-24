@@ -18,7 +18,7 @@ import org.bukkit.scheduler.BukkitTask;
 
 public final class EmoteWheelPlugin extends JavaPlugin {
     private static final MiniMessage MM = MiniMessage.miniMessage();
-    private MapService maps;
+    private PackService pack;
     private EmoteRegistry registry;
     private PlayerDataManager data;
     private EmotePlayer emotePlayer;
@@ -31,12 +31,12 @@ public final class EmoteWheelPlugin extends JavaPlugin {
     @Override public void onEnable() {
         saveDefaultConfig();
         voucherKey = new NamespacedKey(this, "voucher");
-        maps = new MapService(this);
-        registry = new EmoteRegistry(this, maps);
+        pack = new PackService(this);
+        registry = new EmoteRegistry(this);
         data = new PlayerDataManager(this);
         emotePlayer = new EmotePlayer(this);
         wheels = new WheelManager(this);
-        registry.load();
+        loadEmotes();
         for (Player p : Bukkit.getOnlinePlayers()) data.get(p);
         getServer().getPluginManager().registerEvents(new Listeners(this), this);
         EmoteCommand cmd = new EmoteCommand(this);
@@ -53,13 +53,18 @@ public final class EmoteWheelPlugin extends JavaPlugin {
         if (wheels != null) wheels.closeAll();
         if (emotePlayer != null) emotePlayer.stopAll();
         if (data != null) data.saveAllNow();
-        if (maps != null) maps.save();
+        if (pack != null) pack.shutdown();
     }
 
     public void reloadAll() {
         reloadConfig();
-        registry.load();
+        loadEmotes();
         startWatcher();
+    }
+
+    private void loadEmotes() {
+        registry.load();
+        pack.rebuild(registry.all());
     }
 
     private void startWatcher() {
@@ -67,7 +72,7 @@ public final class EmoteWheelPlugin extends JavaPlugin {
         watcher = null;
         if (!getConfig().getBoolean("emotes.auto-reload", true)) return;
         watcher = Bukkit.getScheduler().runTaskTimerAsynchronously(this, () -> {
-            if (registry.changed()) Bukkit.getScheduler().runTask(this, registry::load);
+            if (registry.changed()) Bukkit.getScheduler().runTask(this, this::loadEmotes);
         }, 100L, 100L);
     }
 
@@ -117,7 +122,7 @@ public final class EmoteWheelPlugin extends JavaPlugin {
         return out;
     }
 
-    public MapService maps() { return maps; }
+    public PackService pack() { return pack; }
     public EmoteRegistry registry() { return registry; }
     public PlayerDataManager data() { return data; }
     public EmotePlayer emotePlayer() { return emotePlayer; }

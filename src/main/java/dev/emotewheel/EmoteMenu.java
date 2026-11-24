@@ -28,9 +28,6 @@ public final class EmoteMenu implements InventoryHolder {
     @Override public Inventory getInventory() { return inv; }
 
     public void open() {
-        List<Integer> ids = new ArrayList<>();
-        for (Emote e : pl.registry().all()) if (pl.has(p, e) && e.hasImage()) ids.add(e.mapIds.get(0));
-        pl.maps().ensure(p, ids);
         render();
         p.openInventory(inv);
     }

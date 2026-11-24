@@ -34,7 +34,6 @@ public final class EmotePlayer {
 
         Display d = null;
         if (e.hasImage()) {
-            for (Player v : viewers) pl.maps().ensure(v, e.mapIds);
             ItemDisplay.ItemDisplayTransform tf;
             try { tf = ItemDisplay.ItemDisplayTransform.valueOf(c.getString("playback.display-transform", "GUI").toUpperCase(Locale.ROOT)); }
             catch (IllegalArgumentException ex) { tf = ItemDisplay.ItemDisplayTransform.GUI; }
@@ -78,7 +77,6 @@ public final class EmotePlayer {
                     if (e.actions.contains("jump")) p.setVelocity(p.getVelocity().setY(0.42));
                     if (e.actions.contains("swing")) p.swingMainHand();
                 }
-                if (disp instanceof ItemDisplay id && e.animated() && t % e.frameDelay == 0) id.setItemStack(e.icon(t / e.frameDelay));
                 if (e.particle != null && t % 10 == 1) {
                     try { p.getWorld().spawnParticle(e.particle, p.getLocation().add(0, p.getHeight() + 0.3, 0), e.particleCount, 0.3, 0.2, 0.3, 0.02); }
                     catch (Exception ignored) {}

@@ -24,7 +24,7 @@ final class WheelSession {
     private final Location center;
     private final List<ItemDisplay> items = new ArrayList<>();
     private final TextDisplay label;
-    private final float rad, slotScale, hoverScale, dead, oldWalk;
+    private final float rad, slotScale, hoverScale, dead;
     private final int timeout;
     private final BukkitTask task;
     private int hovered = -1, age, lastClick = -100;
@@ -36,17 +36,15 @@ final class WheelSession {
         n = pl.slots(p);
         slots = new Emote[n];
         PlayerDataManager.Data data = pl.data().get(p);
-        List<Integer> ids = new ArrayList<>();
         for (int i = 0; i < n; i++) {
             Emote e = pl.registry().get(data.wheel[i]);
             if (e != null && !pl.has(p, e)) e = null;
             slots[i] = e;
-            if (e != null && e.hasImage()) ids.add(e.mapIds.get(0));
         }
-        pl.maps().ensure(p, ids);
 
-        rad = (float) c.getDouble("wheel.radius", 0.95);
         slotScale = (float) c.getDouble("wheel.slot-scale", 0.6);
+        // radius grows with slot count so neighbouring icons never overlap
+        rad = (float) Math.max(c.getDouble("wheel.radius", 0.95), slotScale * 1.2 / (2 * Math.sin(Math.PI / n)));
         hoverScale = (float) c.getDouble("wheel.hover-scale", 0.85);
         dead = (float) c.getDouble("wheel.deadzone", 0.3);
         timeout = c.getInt("wheel.timeout-seconds", 20) * 20;
@@ -58,13 +56,11 @@ final class WheelSession {
         u = r.clone().crossProduct(f).normalize();
         center = p.getEyeLocation().add(f.clone().multiply(c.getDouble("wheel.distance", 2.4)));
 
-        Material em = Material.matchMaterial(c.getString("wheel.empty-material", "LIGHT_GRAY_STAINED_GLASS_PANE"));
-        if (em == null) em = Material.GRAY_STAINED_GLASS_PANE;
         World w = center.getWorld();
         for (int i = 0; i < n; i++) {
             double a = 2 * Math.PI * i / n;
             Location loc = center.clone().add(r.clone().multiply(Math.sin(a) * rad)).add(u.clone().multiply(Math.cos(a) * rad));
-            ItemStack stack = slots[i] != null ? slots[i].icon(0) : new ItemStack(em);
+            ItemStack stack = slots[i] != null ? slots[i].icon(0) : PackService.emptyIcon();
             ItemDisplay d = w.spawn(loc, ItemDisplay.class, x -> {
                 x.setVisibleByDefault(false);
                 x.setPersistent(false);
@@ -90,9 +86,7 @@ final class WheelSession {
         });
         p.showEntity(pl, label);
 
-        float ow = p.getWalkSpeed();
-        oldWalk = ow <= 0 ? 0.2f : ow;
-        p.setWalkSpeed(0f); // "freeze" without cancelling movement packets (no camera jitter)
+        Freeze.on(p, pl); // no walking, no jump-hopping
         sound("open", 1.2f);
         task = org.bukkit.Bukkit.getScheduler().runTaskTimer(pl, this::tick, 1L, 1L);
     }
@@ -106,8 +100,6 @@ final class WheelSession {
         if (age == 1) Util.anim(label, Util.tr(0, 0.8f), 5);
         int idx = pick();
         if (idx != hovered && age > 1) setHover(idx);
-        if (hovered >= 0 && slots[hovered] != null && slots[hovered].animated() && age % slots[hovered].frameDelay == 0)
-            items.get(hovered).setItemStack(slots[hovered].icon(age / slots[hovered].frameDelay));
     }
 
     private int pick() {
@@ -131,14 +123,12 @@ final class WheelSession {
     private void setHover(int idx) {
         if (hovered >= 0) {
             Util.anim(items.get(hovered), Util.tr(0, slotScale), 3);
-            if (slots[hovered] != null) items.get(hovered).setItemStack(slots[hovered].icon(0));
         }
         hovered = idx;
         if (idx >= 0) {
             Util.anim(items.get(idx), Util.tr(0, hoverScale), 3);
             sound("hover", 1.6f);
             Emote e = slots[idx];
-            if (e != null && e.animated()) pl.maps().ensure(p, e.mapIds);
             label.text(e == null ? pl.text("wheel-empty") : labelFor(e));
         } else {
             label.text(pl.text("wheel-hint"));
@@ -167,7 +157,7 @@ final class WheelSession {
         if (closing) return;
         closing = true;
         task.cancel();
-        p.setWalkSpeed(oldWalk);
+        Freeze.off(p, pl);
         for (ItemDisplay d : items) Util.anim(d, Util.tr(0, 0f), 4);
         Util.anim(label, Util.tr(0, 0f), 4);
         mgr.remove(p.getUniqueId());
@@ -178,7 +168,7 @@ final class WheelSession {
         if (!closing) {
             closing = true;
             task.cancel();
-            p.setWalkSpeed(oldWalk);
+            Freeze.off(p, pl);
             mgr.remove(p.getUniqueId());
         }
         removeEntities();

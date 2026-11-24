@@ -56,6 +56,17 @@ final class ImageUtil {
         return c;
     }
 
+    /** Stacks frames vertically into one PNG (Minecraft animated-texture format). */
+    static byte[] strip(List<BufferedImage> frames) throws IOException {
+        BufferedImage out = new BufferedImage(S, S * frames.size(), BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g = out.createGraphics();
+        for (int i = 0; i < frames.size(); i++) g.drawImage(fit(frames.get(i)), 0, i * S, null);
+        g.dispose();
+        java.io.ByteArrayOutputStream bo = new java.io.ByteArrayOutputStream();
+        ImageIO.write(out, "png", bo);
+        return bo.toByteArray();
+    }
+
     static Gif readGif(byte[] data, int maxFrames) throws IOException {
         ImageReader r = ImageIO.getImageReadersByFormatName("gif").next();
         try (ImageInputStream in = ImageIO.createImageInputStream(new ByteArrayInputStream(data))) {

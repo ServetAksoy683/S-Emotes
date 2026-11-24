@@ -28,14 +28,11 @@ public final class FallbackMenu implements InventoryHolder {
 
     public void open() {
         PlayerDataManager.Data d = pl.data().get(p);
-        List<Integer> ids = new ArrayList<>();
         for (int i = 0; i < slots.length; i++) {
             Emote e = pl.registry().get(d.wheel[i]);
             if (e != null && !pl.has(p, e)) e = null;
             slots[i] = e;
-            if (e != null && e.hasImage()) ids.add(e.mapIds.get(0));
         }
-        pl.maps().ensure(p, ids);
         for (int i = 0; i < slots.length; i++) {
             Emote e = slots[i];
             ItemStack it = e != null ? e.icon(0) : new ItemStack(Material.LIGHT_GRAY_STAINED_GLASS_PANE);

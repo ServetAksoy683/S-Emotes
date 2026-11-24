@@ -2,12 +2,10 @@ package dev.emotewheel;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.Particle;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.MapMeta;
-import org.bukkit.map.MapView;
 
 public final class Emote {
     public final String id;
@@ -19,18 +17,20 @@ public final class Emote {
     public int duration = 60, frameDelay = 4;
     public Material fallbackIcon = Material.NAME_TAG;
     public List<String> actions = new ArrayList<>();
-    public final List<Integer> mapIds = new ArrayList<>();
+    /** PNG strip (frames stacked vertically) that goes into the generated resource pack. */
+    public byte[] texture;
+    /** Ticks per frame for animated (GIF) emotes, 0 = static. */
+    public int frameTime;
 
     public Emote(String id) { this.id = id; this.name = id; }
 
-    public boolean hasImage() { return !mapIds.isEmpty(); }
-    public boolean animated() { return mapIds.size() > 1; }
+    public boolean hasImage() { return texture != null; }
 
-    public ItemStack icon(int frame) {
-        if (mapIds.isEmpty()) return new ItemStack(fallbackIcon);
-        ItemStack it = new ItemStack(Material.FILLED_MAP);
-        MapView v = Bukkit.getMap(mapIds.get(Math.floorMod(frame, mapIds.size())));
-        if (v != null) it.editMeta(MapMeta.class, m -> m.setMapView(v));
+    /** Item that the resource pack renders as the emote image (item_model component). */
+    public ItemStack icon(int ignored) {
+        if (!hasImage()) return new ItemStack(fallbackIcon);
+        ItemStack it = new ItemStack(Material.PAPER);
+        it.editMeta(m -> m.setItemModel(NamespacedKey.fromString(PackService.NS + ":" + id)));
         return it;
     }
 }

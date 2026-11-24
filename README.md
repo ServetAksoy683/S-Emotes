@@ -28,6 +28,13 @@ Kilitli (`free: false`) emote'u şu yollarla verebilirsin:
 3. İzin: `emotewheel.emote.<id>`
 Yeni emote boş slota otomatik takılır (`unlock.auto-equip`).
 
+## Emote resimleri (1.1.0) - resource pack
+Resimler artık harita değil, plugin'in otomatik ürettiği resource pack ile gösterilir.
+1. Sunucu açılınca `plugins/S-Emotes/pack/S-Emotes-pack.zip` oluşur (emote değişince güncellenir).
+2. Zip'i direkt indirme linki veren bir yere yükle (GitHub Release vb.) ve `config.yml` -> `pack.url` yaz.
+   Ya da `pack.self-host` ile plugin kendisi sunar (ekstra açık port gerekir).
+3. `/emote reload` -> oyuncular girişte paketi indirir.
+
 ## B tuşu hakkında
 Vanilla client tuş basışını sunucuya göndermez; B için client modu gerekir. Mod
 `emotewheel:open` plugin kanalına herhangi bir paket atarsa çark açılır (altyapı hazır).

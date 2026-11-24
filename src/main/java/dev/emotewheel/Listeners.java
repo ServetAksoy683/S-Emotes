@@ -28,6 +28,7 @@ public final class Listeners implements Listener {
     @EventHandler public void onJoin(PlayerJoinEvent e) {
         Player p = e.getPlayer();
         pl.data().get(p);
+        org.bukkit.Bukkit.getScheduler().runTaskLater(pl, () -> { if (p.isOnline()) pl.pack().send(p); }, 40L);
         // crash safety: a wheel freezes the player with walk speed 0
         if (p.getWalkSpeed() == 0f && pl.wheels().get(p) == null) p.setWalkSpeed(0.2f);
     }
@@ -37,7 +38,6 @@ public final class Listeners implements Listener {
         pl.wheels().close(p, true);
         pl.emotePlayer().stop(p);
         pl.data().unload(p.getUniqueId());
-        pl.maps().forget(p.getUniqueId());
         lastSneak.remove(p.getUniqueId());
     }
 
