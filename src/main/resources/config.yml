@@ -1,0 +1,79 @@
+# EmoteWheel ayarları
+trigger:
+  # SWAP_HAND = F tuşu | SNEAK_DOUBLE = hızlı iki kez shift | COMMAND_ONLY = sadece /emote wheel
+  # (B tuşu için client modu gerekir, README'ye bak. Mod "emotewheel:open" kanalına mesaj atınca çark açılır.)
+  mode: SWAP_HAND
+  disabled-worlds: []
+wheel:
+  mode: AUTO            # AUTO = eski sürüm/Bedrock oyuncularına otomatik GUI | DISPLAY | GUI
+  default-slots: 6      # izin: emotewheel.slots.<sayı> ile artar
+  max-slots: 12
+  distance: 2.4         # çarkın oyuncudan uzaklığı (blok)
+  radius: 0.95          # çark yarıçapı
+  slot-scale: 0.6
+  hover-scale: 0.85
+  deadzone: 0.3         # ortadaki "seçim yok" bölgesi
+  timeout-seconds: 20
+  empty-material: LIGHT_GRAY_STAINED_GLASS_PANE
+  sounds:
+    open: ui.button.click
+    hover: block.note_block.hat
+    select: entity.experience_orb.pickup
+emotes:
+  folder: emotes
+  auto-reload: true     # klasör değişince otomatik yeniler
+  max-frames: 24        # GIF için en fazla kare
+  free-by-default: false  # tanımsız resimler herkese açık mı
+  default-duration-ticks: 60
+playback:
+  cooldown-ms: 1500
+  view-distance: 32
+  bubble-height: 0.6
+  bubble-scale: 0.9
+  show-own-bubble: true
+  display-transform: GUI   # balon görünmezse FIXED dene
+unlock:
+  auto-equip: true         # yeni emote boş çark slotuna otomatik takılır
+messages:
+  prefix: "<dark_gray>[<gradient:#ff9a9e:#fad0c4>Emote</gradient>]</dark_gray> "
+  no-permission: "<red>Bunu yapmaya iznin yok."
+  player-only: "<red>Bu komut sadece oyuncular içindir."
+  player-not-found: "<red>Oyuncu bulunamadı: <white><player>"
+  unknown-emote: "<red>Böyle bir emote yok: <white><id>"
+  not-owned: "<red>Bu emote'a sahip değilsin."
+  cooldown: "<yellow>Biraz yavaş! Emoteler arasında kısa bekleme var."
+  usage: "<gray>Kullanım: <white>/emote [menu|wheel|play|list|give|take|item|reload]"
+  granted-sender: "<green><player> oyuncusuna <white><emote> <green>verildi."
+  granted-target: "<green>Yeni emote kazandın: <white><emote><green>! <gray>/emote ile kuşanabilirsin."
+  taken-sender: "<yellow><player> oyuncusundan <white><emote> <yellow>alındı."
+  taken-target: "<yellow><emote> <yellow>emoten kaldırıldı."
+  voucher-given: "<green><player> oyuncusuna <white><emote> <green>emote kartı verildi."
+  voucher-redeemed: "<green><emote> <green>emotelarına eklendi!"
+  voucher-duplicate: "<yellow>Bu emote'a zaten sahipsin."
+  reloaded: "<green>Yeniden yüklendi. <white><count> <green>emote bulundu."
+  list-header: "<gray>Emotelarım (<count>): <white><list>"
+  wheel-hint: "<gray>Bir emote'a bak, <white>sol tık <gray>veya <white>F <gray>ile seç"
+  wheel-empty: "<dark_gray>Boş slot <gray>- /emote ile kuşan"
+  menu-title: "<dark_gray>Emotelarım"
+  menu-slot-empty: "<gray>Boş slot <number>"
+  menu-slot-locked: "<red>Kilitli slot"
+  menu-prev: "<yellow>Önceki sayfa"
+  menu-next: "<yellow>Sonraki sayfa"
+  menu-close: "<red>Kapat"
+  menu-page: "<gray>Sayfa <white><page><gray>/<white><pages>"
+  menu-full: "<red>Çark dolu! Önce bir slotu boşalt."
+  voucher-name: "<gold>Emote Kartı: <emote>"
+  voucher-lore:
+    - "<gray>Sağ tıkla, emotelarına eklensin."
+  lore-pool:
+    - "<yellow>Sol tık: <gray>seç, sonra bir slota tıkla"
+    - "<yellow>Shift+Sol tık: <gray>ilk boş slota tak"
+    - "<yellow>Sağ tık: <gray>önizle"
+  lore-equipped:
+    - "<yellow>Sol tık: <gray>çıkar (envantere döner)"
+    - "<yellow>Sağ tık: <gray>önizle"
+  lore-slot-empty:
+    - "<gray>Aşağıdan bir emote seç,"
+    - "<gray>sonra buraya tıkla."
+  lore-slot-place:
+    - "<green>Tık: <gray>seçili emote'u buraya tak"
