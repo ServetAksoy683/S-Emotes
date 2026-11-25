@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -54,6 +55,7 @@ public final class Listeners implements Listener {
     @EventHandler public void onSneak(PlayerToggleSneakEvent e) {
         if (!e.isSneaking()) return;
         Player p = e.getPlayer();
+        if (pl.emotePlayer().isMotion(p)) { pl.emotePlayer().stop(p); return; } // shift ends sit/lay/etc.
         if (pl.wheels().get(p) != null) { pl.wheels().close(p, false); return; } // shift = cancel
         if (!"SNEAK_DOUBLE".equalsIgnoreCase(pl.getConfig().getString("trigger.mode", "")) || !pl.canUse(p)) return;
         long now = System.currentTimeMillis();
@@ -90,6 +92,15 @@ public final class Listeners implements Listener {
 
     @EventHandler public void onDamage(EntityDamageByEntityEvent e) {
         if (e.getDamager() instanceof Player p && pl.wheels().get(p) != null) e.setCancelled(true);
+    }
+
+    @EventHandler public void onMove(PlayerMoveEvent e) {
+        if (!e.hasChangedPosition()) return;
+        Player p = e.getPlayer();
+        if (!pl.emotePlayer().isMotion(p) || !pl.getConfig().getBoolean("playback.cancel-on-move", true)) return;
+        Location f = e.getFrom(), t = e.getTo();
+        double dx = t.getX() - f.getX(), dz = t.getZ() - f.getZ();
+        if (dx * dx + dz * dz > 0.01) pl.emotePlayer().stop(p);
     }
 
     // ---- cleanup ----

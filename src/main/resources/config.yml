@@ -30,6 +30,8 @@ playback:
   bubble-height: 0.6
   bubble-scale: 0.9
   show-own-bubble: true
+  cancel-on-move: true     # hareket emotesi yururken/Shift'te biter
+  sit-offset: 0.1          # oturma yuksekligi: yere gomuluyorsa artir, havadaysa azalt
   display-transform: GUI   # balon görünmezse FIXED dene
 unlock:
   auto-equip: true         # yeni emote boş çark slotuna otomatik takılır

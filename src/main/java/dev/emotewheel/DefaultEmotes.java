@@ -1,126 +1,140 @@
 package dev.emotewheel;
 
 import java.awt.*;
-import java.awt.geom.Path2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import javax.imageio.ImageIO;
 
-/** Generates a few starter emotes (pure shapes, no fonts needed) on first run. */
+/** Starter motion emotes with generated stick-figure icons (shapes only, no fonts needed). */
 final class DefaultEmotes {
     private DefaultEmotes() {}
 
     static void generate(EmoteWheelPlugin pl, File dir) {
+        try { Files.writeString(new File(dir, "OKU-BENI.txt").toPath(), README, StandardCharsets.UTF_8); }
+        catch (Exception ex) { pl.getLogger().warning("OKU-BENI.txt yazilamadi: " + ex.getMessage()); }
+        ensureMotion(pl, dir);
+    }
+
+    /** Adds the motion starter pack once (also for servers that upgrade from an older version). */
+    static void ensureMotion(EmoteWheelPlugin pl, File dir) {
+        File marker = new File(dir, ".motion-starter-done");
+        if (marker.exists()) return;
         try {
-            ImageIO.write(heart(), "png", new File(dir, "heart.png"));
-            ImageIO.write(smile(false), "png", new File(dir, "smile.png"));
-            ImageIO.write(smile(true), "png", new File(dir, "cool.png"));
-            ImageIO.write(star(), "png", new File(dir, "star.png"));
-            Files.writeString(new File(dir, "starter.yml").toPath(), STARTER, StandardCharsets.UTF_8);
-            Files.writeString(new File(dir, "OKU-BENI.txt").toPath(), README, StandardCharsets.UTF_8);
+            File yml = new File(dir, "motion-starter.yml");
+            if (!yml.exists()) {
+                ImageIO.write(icon(new Color(0xE0A800), "sit"), "png", new File(dir, "sit.png"));
+                ImageIO.write(icon(new Color(0x2196F3), "lay"), "png", new File(dir, "lay.png"));
+                ImageIO.write(icon(new Color(0x43A047), "crawl"), "png", new File(dir, "crawl.png"));
+                ImageIO.write(icon(new Color(0xFB8C00), "wave"), "png", new File(dir, "wave.png"));
+                ImageIO.write(icon(new Color(0x8E24AA), "bow"), "png", new File(dir, "bow.png"));
+                ImageIO.write(icon(new Color(0xD32F2F), "superman"), "png", new File(dir, "superman.png"));
+                ImageIO.write(icon(new Color(0x3949AB), "spin"), "png", new File(dir, "spin.png"));
+                Files.writeString(yml.toPath(), MOTION, StandardCharsets.UTF_8);
+            }
+            marker.createNewFile();
         } catch (Exception ex) {
-            pl.getLogger().warning("Örnek emoteler oluşturulamadı: " + ex.getMessage());
+            pl.getLogger().warning("Hareket emoteleri olusturulamadi: " + ex.getMessage());
         }
     }
 
-    private static Graphics2D g(BufferedImage i) {
+    private static BufferedImage icon(Color bg, String kind) {
+        BufferedImage i = new BufferedImage(128, 128, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = i.createGraphics();
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        return g;
-    }
-
-    private static BufferedImage heart() {
-        BufferedImage i = new BufferedImage(128, 128, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g = g(i);
-        Path2D.Double h = new Path2D.Double();
-        h.moveTo(64, 114); h.curveTo(6, 70, 16, 14, 64, 44); h.curveTo(112, 14, 122, 70, 64, 114); h.closePath();
-        g.setColor(new Color(0xE0245E)); g.fill(h);
-        g.setColor(new Color(0x8B1538)); g.setStroke(new BasicStroke(5)); g.draw(h);
-        g.dispose();
-        return i;
-    }
-
-    private static BufferedImage smile(boolean cool) {
-        BufferedImage i = new BufferedImage(128, 128, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g = g(i);
-        g.setColor(new Color(0xFFD23F)); g.fillOval(8, 8, 112, 112);
-        g.setColor(new Color(0x7A5A00)); g.setStroke(new BasicStroke(5)); g.drawOval(8, 8, 112, 112);
-        g.setColor(Color.BLACK);
-        if (cool) {
-            g.fillRoundRect(24, 40, 36, 24, 8, 8); g.fillRoundRect(68, 40, 36, 24, 8, 8); g.fillRect(58, 46, 12, 6);
-        } else {
-            g.fillOval(38, 40, 14, 22); g.fillOval(76, 40, 14, 22);
+        g.setColor(bg);
+        g.fillOval(4, 4, 120, 120);
+        g.setColor(Color.WHITE);
+        g.setStroke(new BasicStroke(8, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+        switch (kind) {
+            case "sit" -> { head(g, 50, 36); l(g, 50, 48, 50, 80); l(g, 50, 80, 84, 80); l(g, 84, 80, 84, 102); l(g, 50, 58, 72, 72); }
+            case "lay" -> { head(g, 28, 86); l(g, 40, 86, 86, 86); l(g, 86, 86, 108, 80); l(g, 50, 86, 70, 98); }
+            case "crawl" -> { head(g, 34, 76); l(g, 46, 80, 88, 86); l(g, 88, 86, 108, 92); l(g, 52, 82, 52, 102); }
+            case "wave" -> { head(g, 64, 34); l(g, 64, 46, 64, 84); l(g, 64, 84, 50, 106); l(g, 64, 84, 78, 106); l(g, 64, 58, 46, 76); l(g, 64, 58, 92, 40); }
+            case "bow" -> { head(g, 82, 50); l(g, 70, 58, 56, 86); l(g, 56, 86, 44, 108); l(g, 56, 86, 70, 108); l(g, 70, 64, 90, 80); }
+            case "superman" -> { head(g, 34, 56); l(g, 46, 60, 90, 64); l(g, 90, 64, 112, 70); l(g, 46, 60, 22, 56); }
+            case "spin" -> { head(g, 64, 38); l(g, 64, 50, 64, 86); l(g, 64, 86, 52, 106); l(g, 64, 86, 76, 106); l(g, 64, 62, 40, 62); l(g, 64, 62, 88, 62); g.drawArc(20, 20, 88, 88, 20, 110); }
+            default -> { }
         }
-        g.setStroke(new BasicStroke(7, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-        g.drawArc(34, 44, 60, 50, 200, 140);
         g.dispose();
         return i;
     }
 
-    private static BufferedImage star() {
-        BufferedImage i = new BufferedImage(128, 128, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g = g(i);
-        Path2D.Double p = new Path2D.Double();
-        for (int k = 0; k < 10; k++) {
-            double a = -Math.PI / 2 + k * Math.PI / 5, r = k % 2 == 0 ? 58 : 25;
-            double x = 64 + Math.cos(a) * r, y = 68 + Math.sin(a) * r;
-            if (k == 0) p.moveTo(x, y); else p.lineTo(x, y);
-        }
-        p.closePath();
-        g.setColor(new Color(0xFFC400)); g.fill(p);
-        g.setColor(new Color(0x9A6B00)); g.setStroke(new BasicStroke(5, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND)); g.draw(p);
-        g.dispose();
-        return i;
-    }
+    private static void head(Graphics2D g, int x, int y) { g.drawOval(x - 11, y - 11, 22, 22); }
+    private static void l(Graphics2D g, int a, int b, int c, int d) { g.drawLine(a, b, c, d); }
 
-    private static final String STARTER = """
+    private static final String MOTION = """
+# Hareket emoteleri. pose: sitting | sleeping | swimming | fall_flying | spin_attack | sneaking | standing
+# timeline adimlari: at (tick), pose, swing (main/off), yaw (+derece, over: kac tickte), pitch, jump, sound, particle
+#                    every + times ile tekrar. duration yazmazsan: pose-only = Shift/yuruyunce biter.
 emotes:
-  heart:
-    name: "<red>Kalp"
-    description: "Sevgi göster"
-    image: heart.png
+  sit:
+    name: "<yellow>Otur"
+    description: "Yere otur (Shift ile kalk)"
+    image: sit.png
     free: true
-    sound: entity.experience_orb.pickup
-    particle: HEART
-    particle-count: 4
-  smile:
-    name: "<yellow>Gülümse"
-    description: "Mutlu ol"
-    image: smile.png
+    pose: sitting
+  lay:
+    name: "<aqua>Uzan"
+    description: "Yere uzan (Shift ile kalk)"
+    image: lay.png
     free: true
-    actions: [swing]
-  cool:
-    name: "<gold>Havalı"
-    description: "Tarzını göster"
-    image: cool.png
+    pose: sleeping
+  crawl:
+    name: "<green>Sürün"
+    description: "Yerde sürün"
+    image: crawl.png
     free: true
-    sound: block.note_block.bell
-  star:
-    name: "<yellow>Yıldız"
-    description: "Parla! (kasa ödülü örneği: free yok)"
-    image: star.png
+    pose: swimming
+  wave:
+    name: "<gold>El Salla"
+    description: "Selam ver"
+    image: wave.png
+    free: true
+    timeline:
+      - {at: 0, swing: main, every: 8, times: 5}
+  bow:
+    name: "<light_purple>Selam Ver"
+    description: "Eğilerek selamla"
+    image: bow.png
+    free: true
+    timeline:
+      - {at: 0, pitch: 50}
+      - {at: 25, pitch: 0}
+  superman:
+    name: "<red>Süpermen"
+    description: "Uçuş pozu"
+    image: superman.png
     free: false
-    sound: entity.player.levelup
-    particle: END_ROD
-    particle-count: 8
-    actions: [spin, jump]
+    duration: 80
+    sound: entity.firework_rocket.launch
+    timeline:
+      - {at: 0, pose: fall_flying}
+      - {at: 0, jump: 0.5}
+  spin:
+    name: "<blue>Fırıl"
+    description: "Zıpla ve dön"
+    image: spin.png
+    free: false
+    duration: 40
+    sound: entity.player.attack.sweep
+    timeline:
+      - {at: 0, pose: spin_attack}
+      - {at: 0, jump: 0.42}
+      - {at: 0, yaw: 720, over: 30}
 """;
 
     private static final String README = """
-EmoteWheel emote klasörü
-========================
-Buraya attığın dosyalar otomatik algılanır (auto-reload), /emote reload da yapabilirsin.
+S-Emotes emote klasoru
+======================
+Buraya attigin dosyalar otomatik algilanir (auto-reload), /emote reload da yapabilirsin.
 
-1) Sadece resim at: png, jpg, jpeg, bmp, gif (animasyonlu GIF desteklenir)
-   -> dosya adı emote id'si olur (kalp.png => "kalp"). free-by-default kapalıysa
-      kasadan / komuttan açılana kadar kilitli olur.
-2) Aynı isimde yml/json yanına koy: kalp.png + kalp.yml  (ayarlar için)
-3) Tek dosyada çok emote: starter.yml'e bak ("emotes:" altında)
-4) .zip paket: içine resim + yml koyup tüm klasörü zipleyip at
+Resim (simge): png, jpg, jpeg, bmp, gif (animasyonlu GIF desteklenir)
+Tanim: .yml / .json (tek dosyada cok emote: motion-starter.yml'e bak) veya .zip paket
 
-Tanım alanları: name, description, image, free, permission, sound, volume, pitch,
-particle, particle-count, duration, actions (swing, jump, spin), text, icon
+Hareket: pose + timeline (motion-starter.yml'deki aciklamalara bak).
+Not: Emotecraft (.emotecraft) / Blockbench (.bbmodel) dans animasyonlari mod olmayan
+client'ta oynatilamaz; onun yerine timeline ile pozlar ve hareketler yazilir.
 """;
 }

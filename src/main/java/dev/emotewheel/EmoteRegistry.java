@@ -41,6 +41,7 @@ public final class EmoteRegistry {
         emotes.clear();
         File dir = dir();
         if (!dir.exists()) { dir.mkdirs(); DefaultEmotes.generate(pl, dir); }
+        DefaultEmotes.ensureMotion(pl, dir);
         List<Res> res = new ArrayList<>();
         collect(dir, res);
         Map<String, Res> idx = new HashMap<>();
@@ -114,8 +115,41 @@ public final class EmoteRegistry {
         }
         Material m = Material.matchMaterial(s.getString("icon", ""));
         if (m != null) e.fallbackIcon = m;
+        List<Map<?, ?>> tl = s.getMapList("timeline");
+        String pose = s.getString("pose");
+        if (pose != null) { Emote.Step ps = new Emote.Step(); ps.pose = pose; e.timeline.add(ps); }
+        for (Map<?, ?> mp : tl) addSteps(e, mp);
+        e.timeline.sort(Comparator.comparingInt((Emote.Step x) -> x.at));
+        e.motion = !e.timeline.isEmpty();
+        e.bubble = s.getBoolean("bubble", !e.motion);
+        if (e.motion && !s.contains("duration")) {
+            int lastAt = e.timeline.get(e.timeline.size() - 1).at;
+            e.duration = lastAt > 0 ? lastAt + 20 : 0;
+        }
         return e;
     }
+
+    private void addSteps(Emote e, Map<?, ?> m) {
+        int at = intOf(m, "at", 0), every = intOf(m, "every", 0);
+        int times = every > 0 ? Math.max(1, intOf(m, "times", 1)) : 1;
+        for (int k = 0; k < times; k++) {
+            Emote.Step st = new Emote.Step();
+            st.at = at + k * every;
+            st.pose = strOf(m, "pose");
+            st.swing = strOf(m, "swing");
+            st.sound = strOf(m, "sound");
+            st.particle = strOf(m, "particle");
+            st.yaw = dblOf(m, "yaw");
+            st.pitch = dblOf(m, "pitch");
+            st.jump = dblOf(m, "jump");
+            st.over = intOf(m, "over", 1);
+            e.timeline.add(st);
+        }
+    }
+
+    private static int intOf(Map<?, ?> m, String k, int d) { Object o = m.get(k); return o instanceof Number n ? n.intValue() : d; }
+    private static Double dblOf(Map<?, ?> m, String k) { Object o = m.get(k); return o instanceof Number n ? n.doubleValue() : null; }
+    private static String strOf(Map<?, ?> m, String k) { Object o = m.get(k); return o == null ? null : String.valueOf(o); }
 
     private void attach(Emote e, Res r) {
         try {

@@ -12,6 +12,12 @@ Ayrıca: sunucu 1.21.4, ViaVersion opsiyonel (soft-depend).
   Slota tıkla (seçim yokken) = çıkar, emote alta geri döner. Sağ tık = önizle. Shift+tık = ilk boş slota tak.
 - Slot sayısı: `wheel.default-slots`, izin: `emotewheel.slots.<sayı>` (max 12).
 
+## Hareket emoteleri (1.2.0)
+Karakterin kendi vücut hareketi: `pose` (sitting, sleeping, swimming, fall_flying, spin_attack, sneaking)
+ve `timeline` (swing, yaw, pitch, jump, sound, particle; `every`/`times` ile tekrar). Örnekler: `motion-starter.yml`.
+Oturma/uzanma Shift'le veya yürüyünce biter (`playback.cancel-on-move`). Oturma yüksekliği: `playback.sit-offset`.
+Emotecraft/Blockbench dans animasyonları mod olmadan oynatılamaz.
+
 ## Kendi emotelarını ekleme (`plugins/EmoteWheel/emotes/`)
 - png / jpg / bmp / **gif (animasyonlu)** -> doğrudan emote olur (dosya adı = id)
 - `kalp.png` + `kalp.yml` -> ayarlı emote; `.yml`/`.json` ile tek dosyada çoklu tanım (`starter.yml`)
