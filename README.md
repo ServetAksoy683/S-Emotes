@@ -12,6 +12,15 @@ Ayrıca: sunucu 1.21.4, ViaVersion opsiyonel (soft-depend).
   Slota tıkla (seçim yokken) = çıkar, emote alta geri döner. Sağ tık = önizle. Shift+tık = ilk boş slota tak.
 - Slot sayısı: `wheel.default-slots`, izin: `emotewheel.slots.<sayı>` (max 12).
 
+## Çark arayüzü (1.3.0)
+Kendi çizdiğimiz halka çark: açılış animasyonu, hover'da kayan vurgu dilimi, ortada büyük önizleme.
+Ayarlar: `ui.accent`, `ui.size`, `ui.distance`. Çark için resource pack yüklü olmalı; yüklü değilse
+oyuncuya otomatik olarak sandık menüsü açılır.
+
+## Emote eklemek
+Klasöre (`plugins/S-Emotes/emotes/`) png / jpg / gif at, bitti: dosya adı emote adı olur.
+Herkese açık olsun istersen `emotes.free-by-default: true`. Hareketli emote için yml (aşağıda).
+
 ## Hareket emoteleri (1.2.0)
 Karakterin kendi vücut hareketi: `pose` (sitting, sleeping, swimming, fall_flying, spin_attack, sneaking)
 ve `timeline` (swing, yaw, pitch, jump, sound, particle; `every`/`times` ile tekrar). Örnekler: `motion-starter.yml`.

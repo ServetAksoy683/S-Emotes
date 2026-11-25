@@ -37,7 +37,7 @@ public final class WheelManager {
         if (mode.equals("DISPLAY")) return true;
         if (mode.equals("GUI")) return false;
         if (p.getUniqueId().getMostSignificantBits() == 0) return false; // Floodgate (Bedrock) UUID
-        return protocol(p) >= 762;
+        return protocol(p) >= 769 && pl.pack().isLoaded(p); // 769 = 1.21.4 (item models), pack must be loaded
     }
 
     private int protocol(Player p) {

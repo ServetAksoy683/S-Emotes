@@ -8,16 +8,17 @@ wheel:
   mode: AUTO            # AUTO = eski sürüm/Bedrock oyuncularına otomatik GUI | DISPLAY | GUI
   default-slots: 6      # izin: emotewheel.slots.<sayı> ile artar
   max-slots: 12
-  distance: 2.4         # çarkın oyuncudan uzaklığı (blok)
-  radius: 0.95          # çark yarıçapı
-  slot-scale: 0.6
-  hover-scale: 0.85
-  deadzone: 0.3         # ortadaki "seçim yok" bölgesi
   timeout-seconds: 20
   sounds:
     open: ui.button.click
     hover: block.note_block.hat
     select: entity.experience_orb.pickup
+ui:
+  accent: "#FFB300"     # vurgu rengi (hex), değişince paket otomatik yenilenir
+  distance: 1.8         # çarkın gözünden uzaklığı (blok)
+  size: 0.8             # çark boyutu: ekranda büyük gelirse azalt
+  label-scale: 0.45
+  rotation-sign: -1     # vurgu dilimi ters yöne dönüyorsa 1 yap
 emotes:
   folder: emotes
   auto-reload: true     # klasör değişince otomatik yeniler
@@ -45,7 +46,7 @@ pack:
   self-host:           # linkin yoksa: plugin zip'i kendisi sunar (ekstra acik port gerekir)
     enabled: false
     port: 8123
-    public-host: ""    # sunucu IP'si veya alan adi
+    public-host: ""    # bos birakirsan oyuncunun baglandigi adres kullanilir
 messages:
   prefix: "<dark_gray>[<gradient:#ff9a9e:#fad0c4>Emote</gradient>]</dark_gray> "
   no-permission: "<red>Bunu yapmaya iznin yok."

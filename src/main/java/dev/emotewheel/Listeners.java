@@ -38,8 +38,18 @@ public final class Listeners implements Listener {
         Player p = e.getPlayer();
         pl.wheels().close(p, true);
         pl.emotePlayer().stop(p);
+        pl.pack().forget(p.getUniqueId());
         pl.data().unload(p.getUniqueId());
         lastSneak.remove(p.getUniqueId());
+    }
+
+    @EventHandler public void onPack(PlayerResourcePackStatusEvent e) {
+        if (!PackService.ID.equals(e.getID())) return;
+        switch (e.getStatus()) {
+            case SUCCESSFULLY_LOADED -> pl.pack().setLoaded(e.getPlayer(), true);
+            case DECLINED, FAILED_DOWNLOAD, FAILED_RELOAD, INVALID_URL, DISCARDED -> pl.pack().setLoaded(e.getPlayer(), false);
+            default -> { }
+        }
     }
 
     // ---- open / confirm triggers ----

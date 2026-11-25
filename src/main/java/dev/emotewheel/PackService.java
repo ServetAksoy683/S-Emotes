@@ -26,21 +26,26 @@ import org.bukkit.inventory.ItemStack;
 /** Builds the resource pack (one item model per emote) and sends it to players. */
 public final class PackService {
     public static final String NS = "s_emotes";
-    private static final UUID PACK_ID = UUID.fromString("5e307e55-1b2c-4d3e-8f40-0123456789ab");
+    public static final UUID ID = UUID.fromString("5e307e55-1b2c-4d3e-8f40-0123456789ab");
     private static final long FIXED_TIME = 315532800000L; // 1980-01-01, keeps the zip (and its hash) stable
 
     private final EmoteWheelPlugin pl;
     private volatile byte[] zipBytes, sha1;
+    private final Set<UUID> loaded = Collections.synchronizedSet(new HashSet<>());
     private HttpServer http;
     private boolean warned;
 
     public PackService(EmoteWheelPlugin pl) { this.pl = pl; }
 
-    public static ItemStack emptyIcon() {
+    public static ItemStack uiIcon(String name) {
         ItemStack it = new ItemStack(Material.PAPER);
-        it.editMeta(m -> m.setItemModel(NamespacedKey.fromString(NS + ":empty")));
+        it.editMeta(m -> m.setItemModel(NamespacedKey.fromString(NS + ":" + name)));
         return it;
     }
+
+    public void setLoaded(Player p, boolean ok) { if (ok) loaded.add(p.getUniqueId()); else loaded.remove(p.getUniqueId()); }
+    public boolean isLoaded(Player p) { return loaded.contains(p.getUniqueId()); }
+    public void forget(UUID id) { loaded.remove(id); }
 
     public void rebuild(Collection<Emote> emotes) {
         try {
@@ -51,7 +56,16 @@ public final class PackService {
                 z.setLevel(9);
                 put(z, "pack.mcmeta", "{\"pack\":{\"pack_format\":46,\"description\":\"S-Emotes\"}}".getBytes(StandardCharsets.UTF_8));
                 for (Emote e : list) if (e.hasImage()) icon(z, e.id, e.texture, e.frameTime);
-                icon(z, "empty", emptyPng(), 0);
+                Color accent;
+                try { accent = Color.decode(pl.getConfig().getString("ui.accent", "#FFB300")); }
+                catch (NumberFormatException ex) { accent = new Color(0xFFB300); }
+                int max = Math.max(2, Math.min(PlayerDataManager.MAX, pl.getConfig().getInt("wheel.max-slots", 12)));
+                for (int n = 2; n <= max; n++) {
+                    icon(z, "ui_disc_" + n, UiArt.disc(n, accent), 0);
+                    icon(z, "ui_wedge_" + n, UiArt.wedge(n, accent), 0);
+                }
+                icon(z, "ui_backdrop", UiArt.backdrop(), 0);
+                icon(z, "ui_empty", UiArt.empty(), 0);
             }
             byte[] data = bo.toByteArray();
             byte[] h = MessageDigest.getInstance("SHA-1").digest(data);
@@ -62,7 +76,7 @@ public final class PackService {
             dir.mkdirs();
             Files.write(new File(dir, "S-Emotes-pack.zip").toPath(), data);
             startHttp();
-            if (url() == null && !warned) {
+            if (url(null) == null && !warned) {
                 warned = true;
                 pl.getLogger().warning("Resim paketi hazir: plugins/S-Emotes/pack/S-Emotes-pack.zip -> bir yere yukleyip config.yml'de pack.url'ye yaz (README'ye bak).");
             }
@@ -73,22 +87,24 @@ public final class PackService {
     }
 
     public void send(Player p) {
-        String u = url();
+        String u = url(p);
         byte[] h = sha1;
         if (u == null || h == null || !pl.getConfig().getBoolean("pack.enabled", true)) return;
         try {
             String prompt = pl.getConfig().getString("pack.prompt", "S-Emotes gorselleri");
-            p.addResourcePack(PACK_ID, u, h, prompt, pl.getConfig().getBoolean("pack.force", false));
+            p.addResourcePack(ID, u, h, prompt, pl.getConfig().getBoolean("pack.force", false));
         } catch (Exception ex) {
             pl.getLogger().warning("Pack gonderilemedi: " + ex.getMessage());
         }
     }
 
-    private String url() {
+    public String url(Player p) {
         String u = pl.getConfig().getString("pack.url", "");
         if (u != null && !u.isBlank()) return u.trim();
         if (pl.getConfig().getBoolean("pack.self-host.enabled", false)) {
             String host = pl.getConfig().getString("pack.self-host.public-host", "");
+            // no host configured: use the address the player typed to join the server
+            if ((host == null || host.isBlank()) && p != null && p.getVirtualHost() != null) host = p.getVirtualHost().getHostString();
             if (host != null && !host.isBlank())
                 return "http://" + host.trim() + ":" + pl.getConfig().getInt("pack.self-host.port", 8123) + "/S-Emotes-pack.zip";
         }
