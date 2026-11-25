@@ -5,7 +5,7 @@ trigger:
   mode: SWAP_HAND
   disabled-worlds: []
 wheel:
-  mode: AUTO            # AUTO = eski sürüm/Bedrock oyuncularına otomatik GUI | DISPLAY | GUI
+  mode: AUTO            # AUTO = özel arayüz (paket yüklüyse) | PLAIN = sade menü
   default-slots: 6      # izin: emotewheel.slots.<sayı> ile artar
   max-slots: 12
   timeout-seconds: 20
@@ -15,10 +15,6 @@ wheel:
     select: entity.experience_orb.pickup
 ui:
   accent: "#FFB300"     # vurgu rengi (hex), değişince paket otomatik yenilenir
-  distance: 1.8         # çarkın gözünden uzaklığı (blok)
-  size: 0.8             # çark boyutu: ekranda büyük gelirse azalt
-  label-scale: 0.45
-  rotation-sign: -1     # vurgu dilimi ters yöne dönüyorsa 1 yap
 emotes:
   folder: emotes
   auto-reload: true     # klasör değişince otomatik yeniler
@@ -65,7 +61,23 @@ messages:
   voucher-duplicate: "<yellow>Bu emote'a zaten sahipsin."
   reloaded: "<green>Yeniden yüklendi. <white><count> <green>emote bulundu."
   list-header: "<gray>Emotelarım (<count>): <white><list>"
-  wheel-hint: "<gray>Bir emote'a bak, <white>sol tık <gray>veya <white>F <gray>ile seç"
+  wheel-no-pack: "<yellow>Çark için resim paketi yüklenmemiş, sandık menüsü açıldı. Paketi kabul etmen gerekir."
+  wheel-no-pack-admin: "<gray>(Yönetici: config.yml'de <white>pack.url<gray> boş. README'deki pack adımlarına bak.)"
+  wheel-old-client: "<yellow>Sürümün çarkı desteklemiyor, sandık menüsü açıldı."
+  wheel-error: "<red>Çark açılamadı (konsola bak), sandık menüsü açıldı."
+  wheel-hint: "<gray>Bir emote seç"
+  hub-equip: "<yellow>Emotelarım"
+  hub-equip-lore:
+    - "<gray>Çarktaki emoteleri düzenle"
+  hub-back: "<yellow>Çarka dön"
+  hub-back-lore:
+    - "<gray>Düzenlemeyi bitir"
+  hub-selected-lore:
+    - "<green>Seçili emote<gray>: bir çark slotuna tıkla"
+    - "<gray>Tekrar tıkla: seçimi kaldır"
+  lore-wheel:
+    - "<yellow>Tık: <gray>oynat"
+  wheel-hint-old: "<gray>Bir emote'a bak, <white>sol tık <gray>veya <white>F <gray>ile seç"
   wheel-empty: "<dark_gray>Boş slot <gray>- /emote ile kuşan"
   menu-title: "<dark_gray>Emotelarım"
   menu-slot-empty: "<gray>Boş slot <number>"

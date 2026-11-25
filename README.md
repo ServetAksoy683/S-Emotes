@@ -12,10 +12,13 @@ Ayrıca: sunucu 1.21.4, ViaVersion opsiyonel (soft-depend).
   Slota tıkla (seçim yokken) = çıkar, emote alta geri döner. Sağ tık = önizle. Shift+tık = ilk boş slota tak.
 - Slot sayısı: `wheel.default-slots`, izin: `emotewheel.slots.<sayı>` (max 12).
 
-## Çark arayüzü (1.3.0)
-Kendi çizdiğimiz halka çark: açılış animasyonu, hover'da kayan vurgu dilimi, ortada büyük önizleme.
-Ayarlar: `ui.accent`, `ui.size`, `ui.distance`. Çark için resource pack yüklü olmalı; yüklü değilse
-oyuncuya otomatik olarak sandık menüsü açılır.
+## Arayüz (1.4.0)
+Furnace/crafting table gibi gerçek bir ekran: özel çizilmiş çark ekranı ve düzenleme ekranı, vanilla mouse imleciyle.
+- **F** (veya `/emote wheel`): çark ekranı. Bir emote'a tıkla = oynar. Ortadaki buton = Emotelarım (düzenleme).
+- **Emotelarım:** sağdaki listeden emote'a tıkla (seçilir), soldaki çarktaki bir slota tıkla (takılır).
+  Takılı slota tıkla = çıkar. Sağ tık = önizle. Shift+tık = ilk boş slota tak.
+Ekranların arka planı resource pack ile çizilir; pack yüklü değilse aynı ekranlar sade (çizimsiz) açılır.
+Vurgu rengi: `ui.accent`.
 
 ## Emote eklemek
 Klasöre (`plugins/S-Emotes/emotes/`) png / jpg / gif at, bitti: dosya adı emote adı olur.

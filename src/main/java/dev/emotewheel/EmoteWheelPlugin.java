@@ -50,7 +50,6 @@ public final class EmoteWheelPlugin extends JavaPlugin {
     }
 
     @Override public void onDisable() {
-        if (wheels != null) wheels.closeAll();
         if (emotePlayer != null) emotePlayer.stopAll();
         if (data != null) data.saveAllNow();
         if (pack != null) pack.shutdown();

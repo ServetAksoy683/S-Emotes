@@ -1,10 +1,7 @@
 package dev.emotewheel;
 
 import com.sun.net.httpserver.HttpServer;
-import java.awt.BasicStroke;
 import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -16,22 +13,25 @@ import java.security.MessageDigest;
 import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
-import javax.imageio.ImageIO;
+import net.kyori.adventure.key.Key;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-/** Builds the resource pack (one item model per emote) and sends it to players. */
+/** Builds the resource pack (emote item models, UI sprites, screen backgrounds as font glyphs) and sends it. */
 public final class PackService {
     public static final String NS = "s_emotes";
     public static final UUID ID = UUID.fromString("5e307e55-1b2c-4d3e-8f40-0123456789ab");
-    private static final long FIXED_TIME = 315532800000L; // 1980-01-01, keeps the zip (and its hash) stable
+    private static final long FIXED_TIME = 315532800000L; // keeps the zip (and its hash) stable
+    private static final String[] SPRITES = {"ui_empty", "ui_hub", "ui_prev", "ui_next", "ui_close"};
 
     private final EmoteWheelPlugin pl;
-    private volatile byte[] zipBytes, sha1;
     private final Set<UUID> loaded = Collections.synchronizedSet(new HashSet<>());
+    private volatile byte[] zipBytes, sha1;
     private HttpServer http;
     private boolean warned;
 
@@ -43,6 +43,12 @@ public final class PackService {
         return it;
     }
 
+    /** Inventory title that draws the custom screen background (negative space shifts the glyph to the left edge). */
+    public static Component artTitle(boolean wheel, int n) {
+        char c = (char) ((wheel ? 0xE100 : 0xE200) + n);
+        return Component.text("\uF808" + c).font(Key.key(NS, "ui")).color(NamedTextColor.WHITE);
+    }
+
     public void setLoaded(Player p, boolean ok) { if (ok) loaded.add(p.getUniqueId()); else loaded.remove(p.getUniqueId()); }
     public boolean isLoaded(Player p) { return loaded.contains(p.getUniqueId()); }
     public void forget(UUID id) { loaded.remove(id); }
@@ -51,21 +57,27 @@ public final class PackService {
         try {
             List<Emote> list = new ArrayList<>(emotes);
             list.sort(Comparator.comparing(e -> e.id));
+            Color accent;
+            try { accent = Color.decode(pl.getConfig().getString("ui.accent", "#FFB300")); }
+            catch (NumberFormatException ex) { accent = new Color(0xFFB300); }
+            int max = Math.max(2, Math.min(PlayerDataManager.MAX, pl.getConfig().getInt("wheel.max-slots", 12)));
+
             ByteArrayOutputStream bo = new ByteArrayOutputStream();
             try (ZipOutputStream z = new ZipOutputStream(bo)) {
                 z.setLevel(9);
                 put(z, "pack.mcmeta", "{\"pack\":{\"pack_format\":46,\"description\":\"S-Emotes\"}}".getBytes(StandardCharsets.UTF_8));
                 for (Emote e : list) if (e.hasImage()) icon(z, e.id, e.texture, e.frameTime);
-                Color accent;
-                try { accent = Color.decode(pl.getConfig().getString("ui.accent", "#FFB300")); }
-                catch (NumberFormatException ex) { accent = new Color(0xFFB300); }
-                int max = Math.max(2, Math.min(PlayerDataManager.MAX, pl.getConfig().getInt("wheel.max-slots", 12)));
+                for (String s : SPRITES) icon(z, s, GuiArt.png(GuiArt.sprite(s, accent)), 0);
+
+                StringBuilder font = new StringBuilder("{\"providers\":[{\"type\":\"space\",\"advances\":{\"\\uF808\":-8}}");
                 for (int n = 2; n <= max; n++) {
-                    icon(z, "ui_disc_" + n, UiArt.disc(n, accent), 0);
-                    icon(z, "ui_wedge_" + n, UiArt.wedge(n, accent), 0);
+                    put(z, "assets/" + NS + "/textures/font/ui_wheel_" + n + ".png", GuiArt.png(GuiArt.wheel(n, accent)));
+                    put(z, "assets/" + NS + "/textures/font/ui_equip_" + n + ".png", GuiArt.png(GuiArt.equip(n, accent)));
+                    font.append(',').append(glyph("ui_wheel_" + n, 0xE100 + n));
+                    font.append(',').append(glyph("ui_equip_" + n, 0xE200 + n));
                 }
-                icon(z, "ui_backdrop", UiArt.backdrop(), 0);
-                icon(z, "ui_empty", UiArt.empty(), 0);
+                font.append("]}");
+                put(z, "assets/" + NS + "/font/ui.json", font.toString().getBytes(StandardCharsets.UTF_8));
             }
             byte[] data = bo.toByteArray();
             byte[] h = MessageDigest.getInstance("SHA-1").digest(data);
@@ -86,6 +98,11 @@ public final class PackService {
         }
     }
 
+    private static String glyph(String file, int code) {
+        return "{\"type\":\"bitmap\",\"file\":\"" + NS + ":font/" + file + ".png\",\"ascent\":13,\"height\":" + GuiArt.H
+                + ",\"chars\":[\"" + String.format("\\u%04X", code) + "\"]}";
+    }
+
     public void send(Player p) {
         String u = url(p);
         byte[] h = sha1;
@@ -103,7 +120,6 @@ public final class PackService {
         if (u != null && !u.isBlank()) return u.trim();
         if (pl.getConfig().getBoolean("pack.self-host.enabled", false)) {
             String host = pl.getConfig().getString("pack.self-host.public-host", "");
-            // no host configured: use the address the player typed to join the server
             if ((host == null || host.isBlank()) && p != null && p.getVirtualHost() != null) host = p.getVirtualHost().getHostString();
             if (host != null && !host.isBlank())
                 return "http://" + host.trim() + ":" + pl.getConfig().getInt("pack.self-host.port", 8123) + "/S-Emotes-pack.zip";
@@ -151,20 +167,5 @@ public final class PackService {
         z.putNextEntry(e);
         z.write(data);
         z.closeEntry();
-    }
-
-    private static byte[] emptyPng() throws Exception {
-        BufferedImage i = new BufferedImage(128, 128, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g = i.createGraphics();
-        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g.setColor(new Color(40, 40, 40, 90));
-        g.fillOval(14, 14, 100, 100);
-        g.setColor(new Color(170, 170, 170, 210));
-        g.setStroke(new BasicStroke(8));
-        g.drawOval(14, 14, 100, 100);
-        g.dispose();
-        ByteArrayOutputStream bo = new ByteArrayOutputStream();
-        ImageIO.write(i, "png", bo);
-        return bo.toByteArray();
     }
 }
