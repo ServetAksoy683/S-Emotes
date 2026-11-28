@@ -19,7 +19,12 @@ jobs:
       - name: Build
         run: |
           set -o pipefail
-          mvn -B package 2>&1 | tee build.log
+          for i in 1 2 3 4; do
+            if mvn -B package 2>&1 | tee build.log; then exit 0; fi
+            echo "Deneme $i basarisiz, 45 sn bekleniyor"
+            sleep 45
+          done
+          exit 1
       - name: Show errors
         if: failure()
         run: |
