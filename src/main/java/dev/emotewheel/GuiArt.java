@@ -14,7 +14,8 @@ import javax.imageio.ImageIO;
 final class GuiArt {
     private GuiArt() {}
 
-    static final int K = 2, W = 176, H = 125;
+    // Font glyph images must be <= 256x256 px, so this is drawn at 1x: 176x222 = the whole chest screen.
+    static final int K = 1, W = 176, H = 222, TOP = 125;
 
     static BufferedImage wheel(int n, Color accent) {
         BufferedImage img = new BufferedImage(W * K, H * K, BufferedImage.TYPE_INT_ARGB);
@@ -91,8 +92,10 @@ final class GuiArt {
 
     // ---- parts ----
     private static void base(Graphics2D g, Color accent) {
-        g.setPaint(new GradientPaint(0, 0, new Color(30, 32, 46), 0, H, new Color(13, 14, 21)));
-        g.fillRect(0, 0, W, H);
+        g.setPaint(new GradientPaint(0, 0, new Color(30, 32, 46), 0, TOP, new Color(13, 14, 21)));
+        g.fillRect(0, 0, W, TOP);
+        g.setColor(new Color(9, 10, 15));
+        g.fillRect(0, TOP, W, H - TOP);
         g.setStroke(new BasicStroke(1f));
         g.setColor(alpha(accent, 170));
         g.draw(new Rectangle2D.Double(0.5, 0.5, W - 1, H - 1));
@@ -100,10 +103,16 @@ final class GuiArt {
         g.draw(new Rectangle2D.Double(2.5, 2.5, W - 5, H - 5));
         g.setColor(alpha(accent, 210));
         g.fill(new RoundRectangle2D.Double(70, 6, 36, 2.5, 2, 2));
+        // footer strip of the top area
         g.setColor(new Color(8, 9, 13));
-        g.fillRect(1, 106, W - 2, H - 107);
+        g.fillRect(1, 106, W - 2, TOP - 106);
         g.setColor(alpha(accent, 90));
         g.drawLine(1, 106, W - 2, 106);
+        // lower part (the player's inventory slots) becomes part of the same panel
+        g.setColor(alpha(accent, 120));
+        g.drawLine(1, TOP, W - 2, TOP);
+        for (int r = 0; r < 3; r++) for (int c = 0; c < 9; c++) cellAt(g, 7 + 18 * c, 138 + 18 * r);
+        for (int c = 0; c < 9; c++) cellAt(g, 7 + 18 * c, 196);
     }
 
     private static void glow(Graphics2D g, int cx, int cy, Color accent) {
@@ -135,7 +144,10 @@ final class GuiArt {
     }
 
     private static void cell(Graphics2D g, int slot) {
-        double x = 7 + 18 * (slot % 9), y = 17 + 18 * (slot / 9);
+        cellAt(g, 7 + 18 * (slot % 9), 17 + 18 * (slot / 9));
+    }
+
+    private static void cellAt(Graphics2D g, double x, double y) {
         RoundRectangle2D.Double r = new RoundRectangle2D.Double(x, y, 18, 18, 4, 4);
         g.setColor(new Color(10, 11, 16));
         g.fill(r);

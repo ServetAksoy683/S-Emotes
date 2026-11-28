@@ -1,5 +1,5 @@
 name: S-Emotes
-version: 1.4.1
+version: 1.4.2
 main: dev.emotewheel.EmoteWheelPlugin
 api-version: '1.21'
 description: Emote wheel with custom emote folder, unlockable emotes and image previews
