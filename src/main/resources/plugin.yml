@@ -1,0 +1,15 @@
+name: S-Emotes
+version: 1.4.1
+main: dev.emotewheel.EmoteWheelPlugin
+api-version: '1.21'
+description: Emote wheel with custom emote folder, unlockable emotes and image previews
+softdepend: [ViaVersion, ViaBackwards, floodgate]
+commands:
+  emotewheel:
+    aliases: [emote, emotes, ew]
+    description: Emote menüsü ve yönetim komutları
+permissions:
+  emotewheel.use: {default: true}
+  emotewheel.admin: {default: op}
+  emotewheel.emote.*: {default: op, description: Tüm emotelara erişim}
+  emotewheel.slots.12: {default: false}

@@ -1,0 +1,105 @@
+debug: false   # true yaparsan F'ye basınca konsola bilgi yazar
+# EmoteWheel ayarları
+trigger:
+  # SWAP_HAND = F tuşu | SNEAK_DOUBLE = hızlı iki kez shift | COMMAND_ONLY = sadece /emote wheel
+  # (B tuşu için client modu gerekir, README'ye bak. Mod "emotewheel:open" kanalına mesaj atınca çark açılır.)
+  mode: SWAP_HAND
+  disabled-worlds: []
+wheel:
+  mode: AUTO            # AUTO = özel arayüz (paket yüklüyse) | PLAIN = sade menü
+  default-slots: 6      # izin: emotewheel.slots.<sayı> ile artar
+  max-slots: 12
+  timeout-seconds: 20
+  sounds:
+    open: ui.button.click
+    hover: block.note_block.hat
+    select: entity.experience_orb.pickup
+ui:
+  accent: "#FFB300"     # vurgu rengi (hex), değişince paket otomatik yenilenir
+emotes:
+  folder: emotes
+  auto-reload: true     # klasör değişince otomatik yeniler
+  max-frames: 24        # GIF için en fazla kare
+  free-by-default: false  # tanımsız resimler herkese açık mı
+  default-duration-ticks: 60
+playback:
+  cooldown-ms: 1500
+  view-distance: 32
+  bubble-height: 0.6
+  bubble-scale: 0.9
+  show-own-bubble: true
+  cancel-on-move: true     # hareket emotesi yururken/Shift'te biter
+  sit-offset: 0.1          # oturma yuksekligi: yere gomuluyorsa artir, havadaysa azalt
+  display-transform: GUI   # balon görünmezse FIXED dene
+unlock:
+  auto-equip: true         # yeni emote boş çark slotuna otomatik takılır
+pack:
+  # Emote resimleri resource pack ile gosterilir. Paket otomatik uretilir:
+  # plugins/S-Emotes/pack/S-Emotes-pack.zip  (emote degisince guncellenir)
+  enabled: true
+  url: ""              # zip'i yukledigin dogrudan indirme linki (https://...)
+  force: false
+  prompt: "S-Emotes gorselleri"
+  self-host:           # linkin yoksa: plugin zip'i kendisi sunar (ekstra acik port gerekir)
+    enabled: false
+    port: 8123
+    public-host: ""    # bos birakirsan oyuncunun baglandigi adres kullanilir
+messages:
+  prefix: "<dark_gray>[<gradient:#ff9a9e:#fad0c4>Emote</gradient>]</dark_gray> "
+  no-permission: "<red>Bunu yapmaya iznin yok."
+  player-only: "<red>Bu komut sadece oyuncular içindir."
+  player-not-found: "<red>Oyuncu bulunamadı: <white><player>"
+  unknown-emote: "<red>Böyle bir emote yok: <white><id>"
+  not-owned: "<red>Bu emote'a sahip değilsin."
+  cooldown: "<yellow>Biraz yavaş! Emoteler arasında kısa bekleme var."
+  usage: "<gray>Kullanım: <white>/emote [menu|wheel|play|list|give|take|item|reload]"
+  granted-sender: "<green><player> oyuncusuna <white><emote> <green>verildi."
+  granted-target: "<green>Yeni emote kazandın: <white><emote><green>! <gray>/emote ile kuşanabilirsin."
+  taken-sender: "<yellow><player> oyuncusundan <white><emote> <yellow>alındı."
+  taken-target: "<yellow><emote> <yellow>emoten kaldırıldı."
+  voucher-given: "<green><player> oyuncusuna <white><emote> <green>emote kartı verildi."
+  voucher-redeemed: "<green><emote> <green>emotelarına eklendi!"
+  voucher-duplicate: "<yellow>Bu emote'a zaten sahipsin."
+  reloaded: "<green>Yeniden yüklendi. <white><count> <green>emote bulundu."
+  list-header: "<gray>Emotelarım (<count>): <white><list>"
+  wheel-no-pack: "<yellow>Çark için resim paketi yüklenmemiş, sandık menüsü açıldı. Paketi kabul etmen gerekir."
+  wheel-no-pack-admin: "<gray>(Yönetici: config.yml'de <white>pack.url<gray> boş. README'deki pack adımlarına bak.)"
+  wheel-old-client: "<yellow>Sürümün çarkı desteklemiyor, sandık menüsü açıldı."
+  wheel-error: "<red>Çark açılamadı, konsolda hata var. Yöneticiye haber ver."
+  wheel-hint: "<gray>Bir emote seç"
+  hub-equip: "<yellow>Emotelarım"
+  hub-equip-lore:
+    - "<gray>Çarktaki emoteleri düzenle"
+  hub-back: "<yellow>Çarka dön"
+  hub-back-lore:
+    - "<gray>Düzenlemeyi bitir"
+  hub-selected-lore:
+    - "<green>Seçili emote<gray>: bir çark slotuna tıkla"
+    - "<gray>Tekrar tıkla: seçimi kaldır"
+  lore-wheel:
+    - "<yellow>Tık: <gray>oynat"
+  wheel-hint-old: "<gray>Bir emote'a bak, <white>sol tık <gray>veya <white>F <gray>ile seç"
+  wheel-empty: "<dark_gray>Boş slot <gray>- /emote ile kuşan"
+  menu-title: "<dark_gray>Emotelarım"
+  menu-slot-empty: "<gray>Boş slot <number>"
+  menu-slot-locked: "<red>Kilitli slot"
+  menu-prev: "<yellow>Önceki sayfa"
+  menu-next: "<yellow>Sonraki sayfa"
+  menu-close: "<red>Kapat"
+  menu-page: "<gray>Sayfa <white><page><gray>/<white><pages>"
+  menu-full: "<red>Çark dolu! Önce bir slotu boşalt."
+  voucher-name: "<gold>Emote Kartı: <emote>"
+  voucher-lore:
+    - "<gray>Sağ tıkla, emotelarına eklensin."
+  lore-pool:
+    - "<yellow>Sol tık: <gray>seç, sonra bir slota tıkla"
+    - "<yellow>Shift+Sol tık: <gray>ilk boş slota tak"
+    - "<yellow>Sağ tık: <gray>önizle"
+  lore-equipped:
+    - "<yellow>Sol tık: <gray>çıkar (envantere döner)"
+    - "<yellow>Sağ tık: <gray>önizle"
+  lore-slot-empty:
+    - "<gray>Aşağıdan bir emote seç,"
+    - "<gray>sonra buraya tıkla."
+  lore-slot-place:
+    - "<green>Tık: <gray>seçili emote'u buraya tak"
