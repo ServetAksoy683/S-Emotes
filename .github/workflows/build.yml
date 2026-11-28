@@ -16,7 +16,14 @@ jobs:
           distribution: temurin
           java-version: '21'
           cache: maven
-      - run: mvn -B package
+      - name: Build
+        run: |
+          set -o pipefail
+          mvn -B package 2>&1 | tee build.log
+      - name: Show errors
+        if: failure()
+        run: |
+          grep -E "\[ERROR\].*(\.java|symbol|cannot|error:)" build.log | head -12 | while read -r l; do echo "::error::$l"; done
       - uses: actions/upload-artifact@v4
         with:
           name: S-Emotes
